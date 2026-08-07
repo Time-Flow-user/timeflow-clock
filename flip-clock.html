@@ -44,6 +44,19 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+/* iOS / 移动端：background-attachment: fixed 不生效且耗电，改用 scroll */
+@media (max-width: 768px) {
+  html, body { background-attachment: scroll; }
+}
+/* 尊重「减少动态效果」系统偏好：关闭循环/入场动画 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 /* 防止页面文字被选中，但允许输入框正常工作 */
 .big-time, .big-label, .date, .greeting, .nav-tab, .wheel-title,
 .wheel-subtitle, .wheel-hint, .countdown-hint, .study-hint,
@@ -693,6 +706,7 @@ body.focus .focus-hint { display: block; }
   color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor;
 }
 .announcement-feedback-link:hover { opacity: 0.85; }
+.announcement-thirdparty { font-size: 12px; color: var(--text-faint); line-height: 1.6; margin-top: 10px; }
 .announcement-footer {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08);
@@ -1050,7 +1064,7 @@ body.is-fullscreen .task-input:placeholder-shown { display: none !important; }
 <div class="cd-day-modal" id="cdDayModal">
   <div class="cd-day-modal-content">
     <h3>设置倒计日</h3>
-    <input type="text" id="cdDayNameInput" placeholder="事件名称（如：高考）" value="高考">
+    <input type="text" id="cdDayNameInput" placeholder="事件名称（如：高考 / 考试 / deadline）" value="目标日">
     <input type="date" id="cdDayDateInput">
     <label class="cd-fs-toggle"><input type="checkbox" id="cdFsShow" checked> 全屏 / 专注时也显示倒计时</label>
     <div class="modal-btns">
@@ -1063,26 +1077,26 @@ body.is-fullscreen .task-input:placeholder-shown { display: none !important; }
 
 <!-- 左侧小组件：可自主选择收起/展开 -->
 <div class="side-widget" id="sideWidget">
-  <button class="side-collapse" id="sideCollapse" title="收起 / 展开左侧工具">«</button>
+  <button class="side-collapse" id="sideCollapse" title="收起 / 展开左侧工具" aria-label="收起或展开左侧工具栏">«</button>
   <div class="side-buttons" id="sideButtons">
-<button class="bg-toggle-btn" id="bgToggleBtn" title="更换背景和字体">🖼️</button>
+<button class="bg-toggle-btn" id="bgToggleBtn" title="更换背景和字体" aria-label="更换背景和字体">🖼️</button>
 
-<button class="particles-toggle" id="particlesToggle" title="粒子背景">✨</button>
+<button class="particles-toggle" id="particlesToggle" title="粒子背景" aria-label="粒子背景">✨</button>
 
-<button class="fullscreen-btn" id="fullscreenBtn" title="切换全屏">
-  <svg id="fsIconEnter" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-  <svg id="fsIconExit" viewBox="0 0 24 24" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+<button class="fullscreen-btn" id="fullscreenBtn" title="切换全屏" aria-label="切换全屏">
+  <svg id="fsIconEnter" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+  <svg id="fsIconExit" viewBox="0 0 24 24" style="display:none" aria-hidden="true"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
 </button>
 
-<button class="wake-btn" id="wakeBtn" title="屏幕常亮（防息屏）">🔆</button>
+<button class="wake-btn" id="wakeBtn" title="屏幕常亮（防息屏）" aria-label="屏幕常亮防息屏">🔆</button>
 
-<button class="help-btn" id="helpBtn" title="使用引导">?</button>
+<button class="help-btn" id="helpBtn" title="使用引导" aria-label="使用引导">?</button>
 
-<button class="announcement-btn" id="announcementBtn" title="系统公告">🔔</button>
+<button class="announcement-btn" id="announcementBtn" title="系统公告" aria-label="系统公告">🔔</button>
 
-<button class="vip-side-btn" id="vipSideBtn" title="升级 VIP">👑</button>
+<button class="vip-side-btn" id="vipSideBtn" title="升级 VIP" aria-label="升级 VIP">👑</button>
 
-<button class="reward-btn" id="rewardBtn" title="支持一下">☕</button>
+<button class="reward-btn" id="rewardBtn" title="支持一下" aria-label="支持一下">☕</button>
   </div>
 </div>
 
@@ -1199,7 +1213,7 @@ body.is-fullscreen .task-input:placeholder-shown { display: none !important; }
         </div>
         <iframe class="announcement-feedback-frame" id="feedbackFrame" style="display:none;" frameborder="0"></iframe>
         <p class="announcement-feedback-fallback" style="display:none;">若问卷未正常显示，<a href="https://v.wjx.cn/vm/YRzCSvu.aspx" target="_blank" rel="noopener">点此在新窗口填写</a>。</p>
-        <p>也欢迎到 <a class="announcement-feedback-link" href="https://github.com" target="_blank" rel="noopener">GitHub Issues</a> 提交问题与想法。</p>
+        <p class="announcement-thirdparty">本站使用「不蒜子」统计访问量（第三方访问量统计服务，由 busuanzi.ibruce.info 提供）。其余功能均为本站自研，未引入其他第三方开源库。</p>
       </div>
     </div>
     <div class="announcement-footer">
@@ -1520,7 +1534,7 @@ function updateCountdownDay() {
   }
   cdDayEl.classList.remove('disabled');
   cdDayReenable.style.display = 'none';
-  const name = saved.name || '高考';
+  const name = saved.name || '目标日';
   const dateStr = saved.date || '2027-06-07';
   const target = new Date(dateStr + 'T00:00:00');
   const now = new Date();
@@ -1531,7 +1545,7 @@ function updateCountdownDay() {
 cdDayEl.onclick = () => {
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem('countdownDay') || '{}'); } catch(e) {}
-  cdDayNameInput.value = saved.name || '高考';
+  cdDayNameInput.value = saved.name || '目标日';
   cdDayDateInput.value = saved.date || '2027-06-07';
   applyCdFsSetting();
   cdDayModal.classList.add('show');
@@ -1539,7 +1553,7 @@ cdDayEl.onclick = () => {
 cdDayReenable.onclick = () => {
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem('countdownDay') || '{}'); } catch(e) {}
-  cdDayNameInput.value = saved.name || '高考';
+  cdDayNameInput.value = saved.name || '目标日';
   cdDayDateInput.value = saved.date || '2027-06-07';
   applyCdFsSetting();
   cdDayModal.classList.add('show');
@@ -3242,6 +3256,7 @@ updateParticlesBtn();
 
 const PARTICLE_COUNT = 120, MAX_DIST = 130, REPEL_RADIUS = 130;
 let particles = [], animId;
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let mouseX = -9999, mouseY = -9999;
 
 function resizeCanvas() {
@@ -3275,8 +3290,10 @@ function animateParticles() {
     animId = requestAnimationFrame(animateParticles); return;
   }
   ctx.clearRect(0, 0, particlesCanvas.width, particlesCanvas.height);
+  const reduce = prefersReducedMotion.matches;
 
   particles.forEach(p => {
+    if (!reduce) {
     // 鼠标排斥力
     const mdx = p.x - mouseX;
     const mdy = p.y - mouseY;
@@ -3309,6 +3326,7 @@ function animateParticles() {
     if (p.x > particlesCanvas.width) p.x = 0;
     if (p.y < 0) p.y = particlesCanvas.height;
     if (p.y > particlesCanvas.height) p.y = 0;
+    }
 
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
@@ -3333,6 +3351,7 @@ function animateParticles() {
     }
   }
 
+  if (reduce) return; // 减少动态效果：静态绘制一帧，不持续循环
   animId = requestAnimationFrame(animateParticles);
 }
 animateParticles();
@@ -3352,7 +3371,7 @@ function updateParticlesBtn() {
 const TOUR_STEPS = [
   { title: '欢迎使用 TimeFlow', content: '这是一个帮你专注、计时、规划时间的工具。接下来用 13 步带你过一遍核心功能，看完就能上手。点击「下一步」继续。', position: 'center' },
   { title: '顶部导航', target: '.nav', content: '顶部 6 个标签切换不同页面：时钟、倒计时、秒表、自习、学习法、统计。下面挑几个最常用的带你走一遍。', position: 'bottom' },
-  { title: '右上角重大事件倒计时', target: '#countdownDay', content: '这是你专属的「重大事件倒计时」：默认显示「距高考」还剩多少天，目标日默认 2027-06-07。点一下它，就能改事件名称（比如改成「一模」「生日」）和日期，设置存在本地、每天自动更新天数；不想要时也能一键关掉。', position: 'bottom' },
+  { title: '右上角重大事件倒计时', target: '#countdownDay', content: '这是你专属的「重大事件倒计时」：默认显示「距目标日」还剩多少天，目标日默认 2027-06-07。点一下它，就能改事件名称（比如改成「高考」「生日」「项目截止」）和日期，设置存在本地、每天自动更新天数；不想要时也能一键关掉。', position: 'bottom' },
   { title: '倒计时 / 番茄钟', target: '.nav-tab[data-page="countdown"]', content: '滚轮滚动或直接改数字选时长，也有番茄钟预设。适合刷题、限时训练。点击进入看看。', action: () => switchPage('countdown'), position: 'bottom' },
   { title: '学习法转盘', target: '.nav-tab[data-page="wheel"]', content: '不知道从哪开始？让转盘替你选学习法，比如骰子法、奶茶法、单词长度法。点击进入。', action: () => switchPage('wheel'), position: 'bottom' },
   { title: '自习计时', target: '.nav-tab[data-page="study"]', content: '一个干净的专注计时页：写下「我正在…」，按空格开始；全屏后界面自动净化，只留时间和任务。点击进入。', action: () => switchPage('study'), position: 'bottom' },
