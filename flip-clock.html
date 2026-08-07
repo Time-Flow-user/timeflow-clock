@@ -824,6 +824,8 @@ body.focus .focus-hint { display: block; }
 }
 .bg-font-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.35); }
 .bg-font-name { font-size: 12px; color: var(--text-faint); margin-left: 8px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bg-font-reset { padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.bg-font-reset:hover { color: var(--text); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.35); }
 .bg-vip-hint { font-size: 11px; color: var(--text-faint); margin-top: 10px; line-height: 1.5; }
 
 /* ===== 全屏简化 ===== */
@@ -1338,9 +1340,10 @@ body.is-fullscreen .task-input:placeholder-shown { display: none !important; }
       </div>
       <div class="bg-vip-row">
         <span class="vip-row-label">🔤 导入字体</span>
-        <span style="display:flex;align-items:center">
+        <span style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
           <button class="bg-font-btn" id="fontImportBtn">选择字体文件</button>
           <span class="bg-font-name" id="fontName"></span>
+          <button class="bg-font-reset" id="fontResetBtn" style="display:none">恢复默认字体</button>
         </span>
       </div>
       <input type="file" id="fontImportInput" accept=".ttf,.otf,.woff,.woff2" style="display:none">
@@ -3178,6 +3181,7 @@ fontImportInput.onchange = (e) => {
     if (tooBig) alert('字体文件较大，本次仅临时生效，关闭页面后不会保留。');
     loadFontFromData(dataUrl, fontName).then(() => {
       fontNameEl.textContent = file.name;
+      fontResetBtn.style.display = '';
       try {
         localStorage.setItem('timeflow-font-name', fontName);
         localStorage.setItem('timeflow-font-on', '1');
@@ -3187,6 +3191,27 @@ fontImportInput.onchange = (e) => {
   };
   reader.readAsDataURL(file);
   fontImportInput.value = '';
+};
+
+// 恢复默认字体
+const fontResetBtn = document.getElementById('fontResetBtn');
+function resetToDefaultFont() {
+  root.style.removeProperty('--big-time-font');
+  try {
+    localStorage.removeItem('timeflow-font-on');
+    localStorage.removeItem('timeflow-font-data');
+    localStorage.removeItem('timeflow-font-name');
+  } catch (e) {}
+  fontNameEl.textContent = '';
+  fontResetBtn.style.display = 'none';
+}
+// 已导入字体时显示恢复按钮
+try {
+  if (localStorage.getItem('timeflow-font-on')) fontResetBtn.style.display = '';
+} catch (e) {}
+fontResetBtn.onclick = () => {
+  if (window.showPaywall && !window.showPaywall('fontImport', '导入字体')) return;
+  resetToDefaultFont();
 };
 
 // ===== 4. 任务输入框 =====
@@ -3461,7 +3486,7 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
   <div class="tf-modal-box">
     <button class="tf-close" data-close="vipModal">×</button>
     <h3>⭐ 升级 TimeFlow VIP</h3>
-    <p class="tf-sub">一杯奶茶钱，换一整月沉浸学习空间</p>
+    <p class="tf-sub">一杯奶茶钱，换一整年沉浸学习空间</p>
     <table class="vip-compare">
       <tr><td class="feat">倒计时 + 任务备注</td><td class="free">✅</td><td class="vipcol">✅</td></tr>
       <tr><td class="feat">学习法转盘 + 教程</td><td class="free">✅</td><td class="vipcol">✅</td></tr>
@@ -3472,8 +3497,8 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
       <tr><td class="feat">成就徽章</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
       <tr><td class="feat">自定义座右铭</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
     </table>
-    <div class="vip-price">月付 <b>4.9</b> 元/月 &nbsp;·&nbsp; 年付 <b>19.9</b> 元/年</div>
-    <p class="vip-note">考虑到大家预算不宽裕。4.9元不到一杯奶茶，换一整月沉浸学习空间 ❤️</p>
+    <div class="vip-price">VIP 仅需 <b>5</b> 元/年</div>
+    <p class="vip-note">不到一杯奶茶钱，换一整年沉浸学习空间 ❤️</p>
     <button class="tf-btn" id="vipGoActivate">立即升级</button>
   </div>
 </div>
