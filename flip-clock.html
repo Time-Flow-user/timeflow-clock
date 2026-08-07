@@ -171,13 +171,14 @@ body.custom-bg::before {
 
 /* ===== 大数字 ===== */
 .big-time {
-  font-family: 'Bahnschrift SemiBold', 'DIN Alternate', 'Helvetica Neue', 'Segoe UI', 'Inter', sans-serif;
-  font-size: clamp(80px, 22vw, 260px);
+  font-family: var(--big-time-font, 'Bahnschrift SemiBold', 'DIN Alternate', 'Helvetica Neue', 'Segoe UI', 'Inter', sans-serif);
+  font-size: calc(clamp(80px, 22vw, 260px) * var(--digit-scale, 1));
   font-weight: 700; letter-spacing: 0.04em; line-height: 1.0;
-  color: var(--text); text-align: center; font-variant-numeric: tabular-nums;
+  color: var(--big-time-color, var(--text)); text-align: center; font-variant-numeric: tabular-nums;
+  transition: font-size 0.2s, color 0.2s;
 }
 .big-time.cd-time {
-  font-size: clamp(110px, 30vw, 340px);
+  font-size: calc(clamp(110px, 30vw, 340px) * var(--digit-scale, 1));
   letter-spacing: 0.06em;
 }
 .big-label { margin-top: 14px; font-size: 15px; color: var(--text-dim); letter-spacing: 2px; text-align: center; }
@@ -418,8 +419,8 @@ body.focus .clock-page { justify-content: center !important; padding-top: 0 !imp
 .noise-panel.collapsed #themeDots { display: none; }
 /* 手机端：排版同步缩小；左侧按钮组改为顶部竖排，避免与底部白噪音面板重叠 */
 @media (max-width: 640px) {
-  .big-time { font-size: clamp(54px, 16vw, 120px); }
-  .big-time.cd-time { font-size: clamp(70px, 21vw, 160px); }
+  .big-time { font-size: calc(clamp(54px, 16vw, 120px) * var(--digit-scale, 1)); }
+  .big-time.cd-time { font-size: calc(clamp(70px, 21vw, 160px) * var(--digit-scale, 1)); }
   .clock-page, .countdown-page, .stopwatch-page, .study-page { padding-top: 72px; padding-bottom: 110px; }
   .clock-page .date { font-size: 13px; letter-spacing: 2px; margin-top: 14px; }
   .big-label { font-size: 13px; letter-spacing: 1.5px; margin-top: 10px; }
@@ -446,8 +447,8 @@ body.focus .clock-page { justify-content: center !important; padding-top: 0 !imp
 /* 手机横屏：利用更宽的空间，纵向压缩避免溢出；按钮改从顶部紧凑竖排 */
 @media (max-width: 900px) and (orientation: landscape) {
   .clock-page, .countdown-page, .stopwatch-page, .study-page { padding-top: 24px; padding-bottom: 80px; }
-  .big-time { font-size: clamp(46px, 15vh, 130px); }
-  .big-time.cd-time { font-size: clamp(58px, 20vh, 160px); }
+  .big-time { font-size: calc(clamp(46px, 15vh, 130px) * var(--digit-scale, 1)); }
+  .big-time.cd-time { font-size: calc(clamp(58px, 20vh, 160px) * var(--digit-scale, 1)); }
   .clock-ring { margin-top: 12px; }
   .clock-page .date { margin-top: 10px; }
   .countdown-setup { margin-top: 12px; }
@@ -797,6 +798,34 @@ body.focus .focus-hint { display: block; }
 }
 .bg-reset-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
 
+/* 背景弹窗：VIP 专属（数字大小/颜色/字体） */
+.bg-vip-section {
+  margin-top: 20px; padding-top: 18px; border-top: 1px dashed rgba(255,255,255,0.14);
+  text-align: left;
+}
+.bg-vip-section .vip-sec-title {
+  display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
+  color: var(--text); margin-bottom: 14px;
+}
+.bg-vip-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 0; font-size: 13px; color: var(--text-dim);
+}
+.bg-vip-row .vip-row-label { display: flex; align-items: center; gap: 8px; }
+.bg-vip-row input[type=range] { width: 150px; accent-color: var(--accent); cursor: pointer; }
+.bg-vip-row input[type=color] {
+  width: 38px; height: 28px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+  background: transparent; cursor: pointer; padding: 0;
+}
+.bg-vip-row .digit-size-val { min-width: 42px; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+.bg-font-btn {
+  padding: 7px 14px; border-radius: 10px; border: 1px solid var(--border); background: transparent;
+  color: var(--text-dim); font-size: 13px; cursor: pointer; transition: all 0.2s;
+}
+.bg-font-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.35); }
+.bg-font-name { font-size: 12px; color: var(--text-faint); margin-left: 8px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bg-vip-hint { font-size: 11px; color: var(--text-faint); margin-top: 10px; line-height: 1.5; }
+
 /* ===== 全屏简化 ===== */
 body.is-fullscreen .countdown-page .countdown-setup,
 body.is-fullscreen .countdown-page .countdown-inputs,
@@ -1034,7 +1063,7 @@ body.is-fullscreen .task-input:placeholder-shown { display: none !important; }
 <div class="side-widget" id="sideWidget">
   <button class="side-collapse" id="sideCollapse" title="收起 / 展开左侧工具">«</button>
   <div class="side-buttons" id="sideButtons">
-<button class="bg-toggle-btn" id="bgToggleBtn" title="更换背景">🖼️</button>
+<button class="bg-toggle-btn" id="bgToggleBtn" title="更换背景和字体">🖼️</button>
 
 <button class="particles-toggle" id="particlesToggle" title="粒子背景">✨</button>
 
@@ -1288,11 +1317,36 @@ body.is-fullscreen .task-input:placeholder-shown { display: none !important; }
 <!-- 背景选择弹窗 -->
 <div class="bg-modal" id="bgModal">
   <div class="bg-modal-content">
-    <h3>选择背景</h3>
-    <div class="bg-subtitle">点击预览图切换背景</div>
+    <h3>更换背景和字体</h3>
+    <div class="bg-subtitle">点击预览图切换背景，也能导入你自己的照片</div>
     <div class="bg-presets" id="bgPresets"></div>
     <button class="bg-custom-btn" id="bgCustomBtn">📁 导入自定义背景图片</button>
     <input type="file" id="bgCustomInput" accept="image/*" style="display:none">
+
+    <div class="bg-vip-section">
+      <div class="vip-sec-title">✨ 数字与字体自定义 <span class="vip-pill">VIP 专享</span></div>
+      <div class="bg-vip-row">
+        <span class="vip-row-label">🔢 数字大小</span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <input type="range" id="digitSize" min="0.5" max="2" step="0.05" value="1">
+          <span class="digit-size-val" id="digitSizeVal">100%</span>
+        </span>
+      </div>
+      <div class="bg-vip-row">
+        <span class="vip-row-label">🎨 数字颜色</span>
+        <input type="color" id="digitColor" value="#ffffff">
+      </div>
+      <div class="bg-vip-row">
+        <span class="vip-row-label">🔤 导入字体</span>
+        <span style="display:flex;align-items:center">
+          <button class="bg-font-btn" id="fontImportBtn">选择字体文件</button>
+          <span class="bg-font-name" id="fontName"></span>
+        </span>
+      </div>
+      <input type="file" id="fontImportInput" accept=".ttf,.otf,.woff,.woff2" style="display:none">
+      <div class="bg-vip-hint">数字大小、颜色与专属字体为 VIP 专享功能，激活后随心定制你的时钟。</div>
+    </div>
+
     <br>
     <button class="bg-reset-btn" id="bgCloseBtn">关闭</button>
   </div>
@@ -1558,6 +1612,11 @@ document.getElementById('rewardActivateBtn').onclick = () => {
   if (val !== currentRewardCode) { err.textContent = '激活码不正确，请检查后重试'; return; }
   err.textContent = '';
   try { localStorage.setItem('timeflow_vip', currentRewardCode); } catch (e) {}
+  // 同步解锁 VIP 门禁（showPaywall/isVip 读取 tf_isVip）
+  try {
+    localStorage.setItem('tf_isVip', 'true');
+    localStorage.setItem('tf_vipActivateDate', String(Date.now()));
+  } catch (e) {}
   showRewardStep('done');
 };
 
@@ -3050,6 +3109,86 @@ document.getElementById('bgCustomInput').onchange = (e) => {
   reader.readAsDataURL(file);
 }
 
+// ===== 背景弹窗：VIP 专属（数字大小 / 颜色 / 字体）=====
+const digitSizeInput = document.getElementById('digitSize');
+const digitSizeVal = document.getElementById('digitSizeVal');
+const digitColorInput = document.getElementById('digitColor');
+const fontImportBtn = document.getElementById('fontImportBtn');
+const fontImportInput = document.getElementById('fontImportInput');
+const fontNameEl = document.getElementById('fontName');
+
+function guardVip(key, name) {
+  if (window.showPaywall && !window.showPaywall(key, name)) return false;
+  return true;
+}
+
+// 从本地恢复
+try {
+  const savedScale = parseFloat(localStorage.getItem('timeflow-digit-scale'));
+  if (!isNaN(savedScale)) { root.style.setProperty('--digit-scale', savedScale); digitSizeInput.value = savedScale; digitSizeVal.textContent = Math.round(savedScale * 100) + '%'; }
+  const savedColor = localStorage.getItem('timeflow-digit-color');
+  if (savedColor) { root.style.setProperty('--big-time-color', savedColor); digitColorInput.value = savedColor; }
+} catch (e) {}
+
+digitSizeInput.addEventListener('input', () => {
+  if (!guardVip('digitSize', '数字大小')) { digitSizeInput.value = '1'; root.style.setProperty('--digit-scale', 1); digitSizeVal.textContent = '100%'; return; }
+  const v = parseFloat(digitSizeInput.value) || 1;
+  root.style.setProperty('--digit-scale', v);
+  digitSizeVal.textContent = Math.round(v * 100) + '%';
+  try { localStorage.setItem('timeflow-digit-scale', v); } catch (e) {}
+});
+
+digitColorInput.addEventListener('input', () => {
+  if (!guardVip('digitColor', '数字颜色')) { digitColorInput.value = '#ffffff'; root.style.setProperty('--big-time-color', ''); return; }
+  root.style.setProperty('--big-time-color', digitColorInput.value);
+  try { localStorage.setItem('timeflow-digit-color', digitColorInput.value); } catch (e) {}
+});
+
+function applyUserFont(fontName) {
+  root.style.setProperty('--big-time-font', `'${fontName}', 'Bahnschrift SemiBold', 'DIN Alternate', 'Helvetica Neue', 'Segoe UI', sans-serif`);
+}
+function loadFontFromData(dataUrl, name) {
+  try {
+    const ff = new FontFace(name, dataUrl);
+    return ff.load().then(f => { document.fonts.add(f); applyUserFont(name); });
+  } catch (e) { return Promise.reject(e); }
+}
+// 恢复已导入字体
+try {
+  const savedFontOn = localStorage.getItem('timeflow-font-on');
+  const savedFontData = localStorage.getItem('timeflow-font-data');
+  const savedFontName = localStorage.getItem('timeflow-font-name') || 'UserFont';
+  if (savedFontOn && savedFontData) {
+    loadFontFromData(savedFontData, savedFontName).then(() => { fontNameEl.textContent = savedFontName; }).catch(() => {});
+  }
+} catch (e) {}
+
+fontImportBtn.onclick = () => {
+  if (window.showPaywall && !window.showPaywall('fontImport', '导入字体')) return;
+  fontImportInput.click();
+};
+fontImportInput.onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    const fontName = 'UserFont';
+    const tooBig = dataUrl.length > 2.6 * 1024 * 1024;
+    if (tooBig) alert('字体文件较大，本次仅临时生效，关闭页面后不会保留。');
+    loadFontFromData(dataUrl, fontName).then(() => {
+      fontNameEl.textContent = file.name;
+      try {
+        localStorage.setItem('timeflow-font-name', fontName);
+        localStorage.setItem('timeflow-font-on', '1');
+        if (!tooBig) localStorage.setItem('timeflow-font-data', dataUrl);
+      } catch (err) {}
+    }).catch(err => alert('字体加载失败，请换一个 .ttf / .woff / .woff2 文件'));
+  };
+  reader.readAsDataURL(file);
+  fontImportInput.value = '';
+};
+
 // ===== 4. 任务输入框 =====
 const cdTaskInput = document.getElementById('cdTaskInput');
 const stTaskInput = document.getElementById('stTaskInput');
@@ -3195,7 +3334,7 @@ const TOUR_STEPS = [
   { title: '全屏专注', target: '#fullscreenBtn', content: '左侧栏这个按钮进入全屏，屏蔽干扰、只留时间。键盘 F 也能切换全屏 / 退出。下面一步教你所有快捷键。', position: 'top' },
   { title: '屏幕常亮 & 收起侧栏', target: '#sideWidget', content: '左侧这列小工具很实用：点 🔆 屏幕常亮可防止设备自动息屏（长时间自习不用来回点亮）；点最顶上的 « 能把整列收起，界面更干净，需要时再点 » 展开即可。', position: 'right' },
   { title: '键盘快捷键', content: '', contentHtml: '<p>用键盘操作可以完全不碰鼠标，效率翻倍。记住这几组就够用了：</p><div class="tour-kbd"><div class="kbd-row"><span class="kbd">空格</span><span class="kbd-desc">开始 / 暂停 当前计时（倒计时·自习·秒表通用）</span></div><div class="kbd-row"><span class="kbd">1–6</span><span class="kbd-desc">切换页面：时钟·倒计时·秒表·自习·学习法·统计</span></div><div class="kbd-row"><span class="kbd">F</span><span class="kbd-desc">切换全屏 / 专注模式</span></div><div class="kbd-row"><span class="kbd">R</span><span class="kbd-desc">重置（仅在倒计时 / 秒表页有效）</span></div><div class="kbd-row"><span class="kbd">Esc</span><span class="kbd-desc">退出专注模式（无原生全屏时）</span></div></div><p class="kbd-note">操作后右下角会有轻提示，按错也没关系，随时可重来。</p>', position: 'center' },
-  { title: '背景自定义', target: '#bgToggleBtn', content: '左侧栏这个 🖼️ 按钮换背景：内置多种渐变任选，也能「导入自定义背景图片」用你自己的照片，存在本地。', position: 'top' },
+  { title: '更换背景和字体', target: '#bgToggleBtn', content: '左侧栏这个 🖼️ 按钮：背景可换内置渐变、也能导入你自己的照片；更厉害的是——数字大小、数字颜色、专属字体都能自定义，不过这三项是 VIP 专享，激活后就能玩出你的专属时钟。', position: 'top' },
   { title: '粒子背景', target: '#particlesToggle', content: '觉得飘动的粒子太花哨？点左侧栏这个 ✨ 按钮一键关闭；想看时再点开即可，选择存本地。', position: 'top' },
   { title: '白噪音混搭', target: '#noisePanel', content: '点面板里的圆形开关开启白噪音；每种声音都能单独点亮，多个一起开就是你的专属混搭，右侧小滑块还能各自调音量。', action: () => { try { const np = document.getElementById('noisePanel'); np.classList.remove('collapsed'); if (window.matchMedia('(max-width: 900px)').matches) np.classList.add('mobile-open'); } catch(e){} }, position: 'top' },
   { title: '支持与反馈', target: '#rewardBtn', content: '如果它帮到了你，可点这里支持作者；遇到问题去左下角 🔔 铃铛看公告，或系统公告里填反馈问卷。', position: 'top' }
@@ -3414,7 +3553,7 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
 (function(){
   'use strict';
   var BETA_DAYS = 10;
-  var PAYWALL_FEATURES = { noiseMix:'白噪音混音', autoCycle:'自动循环', trend:'历史趋势图', badge:'成就徽章', customMotto:'自定义座右铭' };
+  var PAYWALL_FEATURES = { noiseMix:'白噪音混音', autoCycle:'自动循环', trend:'历史趋势图', badge:'成就徽章', customMotto:'自定义座右铭', digitSize:'数字大小', digitColor:'数字颜色', fontImport:'导入字体' };
 
   function getFirstVisit(){
     var fv = localStorage.getItem('tf_firstVisit');
