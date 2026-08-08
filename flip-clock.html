@@ -1102,52 +1102,15 @@ body.is-fullscreen .task-input:placeholder-shown { display: none !important; }
 
 <div class="focus-hint">点击左上角按钮退出专注 · 横置手机体验更佳</div>
 
-<!-- 打赏 / 付费激活弹窗 -->
+<!-- 打赏弹窗（支持作者，保留微信收款码，不再生成 VIP 激活码） -->
 <div class="reward-modal" id="rewardModal">
   <div class="reward-modal-content">
     <button class="reward-close-x" id="rewardClose" title="关闭">×</button>
-
-    <!-- 步骤 1：扫码支付 -->
-    <div class="reward-step active" data-step="pay">
-      <h3>☕ 请作者喝杯奶茶</h3>
-      <img src="assets/reward-qr.png" alt="微信支付收款码" class="reward-qr">
-      <p class="reward-warm">愿这里的每一秒，都能陪你走向更明亮的地方。</p>
-      <p class="reward-note">扫码支付任意金额 · 即可获取 VIP 激活码</p>
-      <button class="result-btn primary" id="rewardPaid">支付完毕</button>
-    </div>
-
-    <!-- 步骤 2：填写邮箱 -->
-    <div class="reward-step" data-step="email">
-      <h3>📧 获取激活码</h3>
-      <p class="reward-warm">请输入正确邮箱</p>
-      <input type="email" id="rewardEmail" class="reward-input" placeholder="你的邮箱，例如 me@qq.com" autocomplete="email">
-      <p class="reward-err" id="rewardEmailErr"></p>
-      <button class="result-btn primary" id="rewardGetCode">获取激活码</button>
-    </div>
-
-    <!-- 步骤 3：展示激活码 -->
-    <div class="reward-step" data-step="code">
-      <h3>🔑 你的激活码</h3>
-      <div class="reward-code" id="rewardCode">----</div>
-      <p class="reward-note">请截图保存，下一步需要输入</p>
-      <button class="result-btn primary" id="rewardCodeNext">我已记下，去激活</button>
-    </div>
-
-    <!-- 步骤 4：输入激活码 -->
-    <div class="reward-step" data-step="activate">
-      <h3>✅ 激活 VIP</h3>
-      <p class="reward-warm">请输入激活码</p>
-      <input type="text" id="rewardActivate" class="reward-input" placeholder="粘贴上面的激活码" autocapitalize="characters">
-      <p class="reward-err" id="rewardActivateErr"></p>
-      <button class="result-btn primary" id="rewardActivateBtn">激活</button>
-    </div>
-
-    <!-- 步骤 5：成功 -->
-    <div class="reward-step" data-step="done">
-      <h3>🎉 激活成功</h3>
-      <p class="reward-warm">感谢你的支持！VIP 已生效，愿它陪你专注每一刻。</p>
-      <button class="result-btn primary" id="rewardDoneClose">开始使用</button>
-    </div>
+    <h3>☕ 请作者喝杯奶茶</h3>
+    <img src="assets/reward-qr.png" alt="微信支付收款码" class="reward-qr">
+    <p class="reward-warm">愿这里的每一秒，都能陪你走向更明亮的地方。</p>
+    <p class="reward-note">微信扫码，任意金额都是鼓励 ❤️</p>
+    <button class="result-btn primary" id="rewardClose2">完成</button>
   </div>
 </div>
 
@@ -1588,66 +1551,15 @@ updateCountdownDay();
 applyCdFsSetting();
 setInterval(updateCountdownDay, 60000);
 
-// ===== 打赏弹窗 =====
+// ===== 打赏弹窗（仅支持作者，保留微信收款码，不再生成 VIP 激活码） =====
 const rewardModal = document.getElementById('rewardModal');
-const rewardSteps = rewardModal.querySelectorAll('.reward-step');
-let currentRewardCode = '';
-function showRewardStep(name) {
-  rewardSteps.forEach(s => s.classList.toggle('active', s.dataset.step === name));
-}
 function openReward() {
-  if (localStorage.getItem('timeflow_vip')) { showRewardStep('done'); }
-  else { showRewardStep('pay'); }
   rewardModal.classList.add('show');
 }
 document.getElementById('rewardBtn').onclick = openReward;
 document.getElementById('rewardClose').onclick = () => rewardModal.classList.remove('show');
+document.getElementById('rewardClose2').onclick = () => rewardModal.classList.remove('show');
 rewardModal.addEventListener('click', (e) => { if (e.target === rewardModal) rewardModal.classList.remove('show'); });
-
-// 步骤1 -> 步骤2
-document.getElementById('rewardPaid').onclick = () => showRewardStep('email');
-
-// 步骤2：校验邮箱后生成激活码
-document.getElementById('rewardGetCode').onclick = () => {
-  const email = document.getElementById('rewardEmail').value.trim();
-  const err = document.getElementById('rewardEmailErr');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = '请输入有效的邮箱地址'; return; }
-  err.textContent = '';
-  currentRewardCode = genRewardCode();
-  document.getElementById('rewardCode').textContent = currentRewardCode;
-  showRewardStep('code');
-};
-
-// 步骤3 -> 步骤4
-document.getElementById('rewardCodeNext').onclick = () => showRewardStep('activate');
-
-// 步骤4：校验激活码
-document.getElementById('rewardActivateBtn').onclick = () => {
-  const val = document.getElementById('rewardActivate').value.trim().toUpperCase();
-  const err = document.getElementById('rewardActivateErr');
-  if (!val) { err.textContent = '请输入激活码'; return; }
-  if (val !== currentRewardCode) { err.textContent = '激活码不正确，请检查后重试'; return; }
-  err.textContent = '';
-  try { localStorage.setItem('timeflow_vip', currentRewardCode); } catch (e) {}
-  // 同步解锁 VIP 门禁（showPaywall/isVip 读取 tf_isVip）
-  try {
-    localStorage.setItem('tf_isVip', 'true');
-    localStorage.setItem('tf_vipActivateDate', String(Date.now()));
-  } catch (e) {}
-  showRewardStep('done');
-};
-
-document.getElementById('rewardDoneClose').onclick = () => rewardModal.classList.remove('show');
-
-function genRewardCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = '';
-  for (let i = 0; i < 4; i++) {
-    for (let j = 0; j < 4; j++) s += chars[Math.floor(Math.random() * chars.length)];
-    if (i < 3) s += '-';
-  }
-  return s; // XXXX-XXXX-XXXX-XXXX
-}
 
 // ===== 系统公告弹窗 =====
 const FEEDBACK_SURVEY_URL = 'https://v.wjx.cn/vm/YRzCSvu.aspx'; // 腾讯问卷链接
@@ -3505,20 +3417,27 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
   <div class="tf-modal-box">
     <button class="tf-close" data-close="vipModal">×</button>
     <h3>⭐ 升级 TimeFlow VIP</h3>
-    <p class="tf-sub">一杯奶茶钱，换一整月沉浸学习空间</p>
+    <p class="tf-sub">每月 5 元，或每年 30 元，换一个专注的自己</p>
     <table class="vip-compare">
       <tr><td class="feat">倒计时 + 任务备注</td><td class="free">✅</td><td class="vipcol">✅</td></tr>
       <tr><td class="feat">学习法转盘 + 教程</td><td class="free">✅</td><td class="vipcol">✅</td></tr>
       <tr><td class="feat">白噪音单音效</td><td class="free">✅</td><td class="vipcol">✅</td></tr>
       <tr><td class="feat">白噪音混音</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
+      <tr><td class="feat">自定义白噪音（导入音频）</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
       <tr><td class="feat">自动循环</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
       <tr><td class="feat">历史趋势图</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
       <tr><td class="feat">成就徽章</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
       <tr><td class="feat">自定义座右铭</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
+      <tr><td class="feat">自定义背景（导入照片）</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
+      <tr><td class="feat">数字大小 / 颜色</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
+      <tr><td class="feat">导入专属字体</td><td class="free no">❌</td><td class="vipcol ok">✅</td></tr>
     </table>
-    <div class="vip-price">VIP 仅需 <b>5</b> 元/月</div>
-    <p class="vip-note">不到一杯奶茶钱，换一整月沉浸学习空间 ❤️</p>
-    <button class="tf-btn" id="vipGoActivate">立即升级</button>
+    <div class="vip-price">VIP <b>5</b> 元/月 · <b>30</b> 元/年</div>
+    <p class="vip-note">5 元用一个月，30 元用一整年，不到一杯奶茶钱 ❤️</p>
+    <div class="tf-btn-row">
+      <button class="tf-btn" id="vipGoActivate">前往爱发电升级</button>
+      <button class="tf-btn secondary" id="vipHaveCode">我已有激活码</button>
+    </div>
   </div>
 </div>
 
@@ -3536,19 +3455,15 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
   </div>
 </div>
 
-<!-- VIP 激活（收款码 + 邮箱 + 激活码） -->
+<!-- VIP 激活（爱发电购买后粘贴激活码） -->
 <div class="tf-modal" id="activateModal">
   <div class="tf-modal-box">
     <button class="tf-close" data-close="activateModal">×</button>
     <h3>激活 TimeFlow VIP</h3>
-    <p class="tf-sub">扫码付款后，填写邮箱获取激活码</p>
-    <img class="vip-qr" id="vipQrImg" src="assets/wx-pay.png" alt="微信收款码" onerror="this.style.display='none';var f=document.getElementById('vipQrFallback');if(f)f.style.display='block';">
-    <p class="vip-qr-fallback" id="vipQrFallback" style="display:none;">请将微信收款码图片命名为 <b>wx-pay.png</b> 放到网站 <b>assets/</b> 文件夹后刷新即可显示。付款请直接微信扫码（开发者微信收款码），付款后填写邮箱获取激活码。</p>
-    <input class="tf-input" id="vipEmail" type="email" placeholder="请输入你的邮箱（用于生成激活码）">
-    <button class="tf-btn" id="vipGetCode">获取激活码</button>
-    <div class="vip-code-box" id="vipCodeBox"></div>
-    <p class="tf-msg" id="vipGetMsg"></p>
-    <input class="tf-input" id="vipCodeInput" type="text" placeholder="粘贴激活码，如 VIP-20260806-1234-AB7K">
+    <p class="tf-sub">在爱发电购买 VIP 后，会自动收到激活码<br>将激活码粘贴到下方即可解锁全部 VIP 功能</p>
+    <a class="tf-btn" id="vipAfdianBtn" href="https://ifdian.net/a/timeflow" target="_blank" rel="noopener" style="display:block;text-decoration:none;">前往爱发电购买 VIP →</a>
+    <p style="font-size:12px;color:var(--text-dim);text-align:center;margin:6px 0 14px;">月费 5 元 / 30 天 · 年费 30 元 / 365 天</p>
+    <input class="tf-input" id="vipCodeInput" type="text" placeholder="粘贴激活码，如 VIP-20260808-M030-AB7K" autocapitalize="characters">
     <button class="tf-btn secondary" id="vipVerifyBtn">验证激活码</button>
     <p class="tf-msg" id="vipVerifyMsg"></p>
   </div>
@@ -3597,7 +3512,7 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
 (function(){
   'use strict';
   var BETA_DAYS = 10;
-  var PAYWALL_FEATURES = { noiseMix:'白噪音混音', autoCycle:'自动循环', trend:'历史趋势图', badge:'成就徽章', customMotto:'自定义座右铭', digitSize:'数字大小', digitColor:'数字颜色', fontImport:'导入字体' };
+  var PAYWALL_FEATURES = { noiseMix:'白噪音混音', customNoise:'自定义白噪音', autoCycle:'自动循环', trend:'历史趋势图', badge:'成就徽章', customMotto:'自定义座右铭', customBg:'自定义背景', digitSize:'数字大小', digitColor:'数字颜色', fontImport:'导入字体' };
 
   function getFirstVisit(){
     var fv = localStorage.getItem('tf_firstVisit');
@@ -3613,7 +3528,8 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
   function isVip(){
     if(localStorage.getItem('tf_isVip') !== 'true') return false;
     var d = localStorage.getItem('tf_vipActivateDate');
-    if(d){ var days = (Date.now() - parseInt(d,10))/86400000; if(days > 365){ localStorage.setItem('tf_isVip','false'); return false; } }
+    var dur = parseInt(localStorage.getItem('tf_vipDurationDays')||'365',10) || 365;
+    if(d){ var days = (Date.now() - parseInt(d,10))/86400000; if(days > dur){ localStorage.setItem('tf_isVip','false'); return false; } }
     return true;
   }
   function canUseVipFeature(key){ if(isVip()) return true; if(inBeta()) return true; return false; }
@@ -3637,7 +3553,7 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
     } else {
       icon.textContent = '🔒';
       title.textContent = '“' + name + '”已结束公测';
-      desc.innerHTML = '此功能仅限 <b>VIP 用户</b> 使用<br>升级 VIP 解锁全部高级功能：白噪音混音 · 自动循环 · 历史趋势 · 成就徽章 · 自定义座右铭';
+      desc.innerHTML = '此功能仅限 <b>VIP 用户</b> 使用<br>升级 VIP 解锁全部高级功能：白噪音混音 · 自定义白噪音 · 自动循环 · 历史趋势 · 成就徽章 · 自定义座右铭 · 自定义背景 · 数字大小 · 数字颜色 · 导入字体';
       modal.classList.add('show');
       return false;
     }
@@ -3867,7 +3783,7 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
     if(ageDays < 0 || ageDays > 365) return false;
     if(email){
       var pre = email.slice(0,4).toUpperCase();
-      if(m[2] !== pre && m[2] !== 'XXXX') return false;
+      if(m[2] !== pre && m[2] !== 'XXXX' && m[2] !== 'M030' && m[2] !== 'Y365') return false;
     }
     return true;
   }
@@ -3886,27 +3802,21 @@ if (helpBtn) helpBtn.onclick = () => { if (!tourActive) startTour(true); };
     var upBtn = document.getElementById('vipSideBtn'); if(upBtn) upBtn.onclick = openVipModal;
     var oldUp = document.getElementById('vipUpgradeBtn'); if(oldUp) oldUp.onclick = openVipModal;
     updateVipSideBtn();
-    var go = document.getElementById('vipGoActivate'); if(go) go.onclick = openActivate;
-    var getCode = document.getElementById('vipGetCode');
-    if(getCode) getCode.onclick = function(){
-      var email = (document.getElementById('vipEmail').value||'').trim();
-      var msg = document.getElementById('vipGetMsg');
-      if(!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.textContent='请输入有效的邮箱地址'; msg.className='tf-msg err'; return; }
-      var code = genVipCode(email);
-      var box = document.getElementById('vipCodeBox');
-      box.textContent = code; box.style.display = 'block';
-      msg.textContent = '激活码已生成，请复制保存（有效期365天）'; msg.className='tf-msg ok';
-    };
+    var go = document.getElementById('vipGoActivate'); if(go) go.onclick = function(){ window.open('https://ifdian.net/a/timeflow','_blank'); };
+    var haveCode = document.getElementById('vipHaveCode'); if(haveCode) haveCode.onclick = openActivate;
     var verify = document.getElementById('vipVerifyBtn');
     if(verify) verify.onclick = function(){
       var code = (document.getElementById('vipCodeInput').value||'').trim();
-      var email = (document.getElementById('vipEmail').value||'').trim();
+      var email = '';
       var msg = document.getElementById('vipVerifyMsg');
       if(verifyVipCode(code, email)){
+        var _m = code.trim().toUpperCase().match(/^VIP-\d{8}-([A-Z0-9]{1,4})-/);
+        var _dur = (_m && _m[1] === 'M030') ? 30 : 365;
         localStorage.setItem('tf_isVip','true');
         localStorage.setItem('tf_vipEmail', email);
         localStorage.setItem('tf_vipCode', code.toUpperCase());
         localStorage.setItem('tf_vipActivateDate', String(Date.now()));
+        localStorage.setItem('tf_vipDurationDays', String(_dur));
         updateVipSideBtn();
         msg.textContent = '✅ 激活成功！VIP 功能已解锁'; msg.className='tf-msg ok';
         setTimeout(function(){ closeModal('activateModal'); if(typeof renderStats==='function') renderStats(); updateVipSideBtn(); }, 1200);
